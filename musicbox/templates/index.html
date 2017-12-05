@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+    <div class="row" style="margin-top: 40px;">
+        <div class="col-md-12">
+            <h3 style="text-align: center; font-weight: bold; margin-bottom: 20px;" ;>Top 12 Artists</h3>
+            {% for a in artists %}
+                <div class="col-md-3">
+                    <a href='/artists/details/?name={{ a.name }}'>
+                        <img class="img-responsive img-thumbnail" src="{{ a.image }}">
+                        <h5>{{ a.count }}. {{ a.name}} <br> <i><p style="font-size: small">{{ a.listeners }} listeners</p></i></h5>
+
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+
+    </div>
+
+    <div class="row" style="margin-top: 40px;">
+        <h3 style="text-align: center; font-weight: bold; margin-bottom: 20px;" ;>Latest News</h3>
+        {% for n in news %}
+            <div class="col-md-4">
+                <div class="signle_iteam slick-slide slick-cloned slick-active" style="width: 400px;"><img
+                        src="{{ n.Image }}" class="img-thumbnail" alt="website template image">
+                    <a class="slider_tittle" href="{{ n.Link }}">{{ n.Title }}</a>
+                    <br>
+                </div>
+            </div>
+
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block jspage %}
+    <script>
+        $('.carousel').carousel({
+            interval: 3000,
+            pause: false
+        });
+    </script>
+
+{% endblock %}

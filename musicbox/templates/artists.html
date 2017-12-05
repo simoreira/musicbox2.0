@@ -1,0 +1,40 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<div class="row">
+    <h2 style="text-align: center; font-weight: bold; padding: 35px">All Artists</h2>
+    <ul class="alphabet">
+        {% for l in flist %}
+            <li class="active" onclick="location.href='/artists/?name={{ l.ll }}'">{{ l.ll }}</li>
+        {% endfor %}
+
+    </ul>
+</div>
+
+<div class="row" style="margin-top: 10px">
+    {% for a in artists %}
+    <div class="col-md-3">
+        <a href='/artists/details/?name={{ a.name }}'>
+            <img class="img-responsive img-thumbnail" src="{{ a.image }}">
+            <h5>{{ a.name }}</h5>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+
+
+{% endblock %}
+
+{% block jspage %}
+
+<script>
+
+    jQuery(document).ready(function($) {
+        $(".clickable-row").click(function() {
+            window.location = $(this).data("href");
+        });
+    });
+</script>
+
+{% endblock %}

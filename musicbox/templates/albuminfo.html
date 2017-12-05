@@ -1,0 +1,65 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4" style="margin-top: 40px; text-align: center">
+        <a href="/artists/details/?name={{ artist }}"><h3 style="text-align: center; font-weight: bold">{{ artist }}</h3></a>
+        <img src="{{ photo }}">
+        <h3 style="text-align: center; font-weight: bold">{{ album_name }}</h3>
+    </div>
+
+    <div class="col-md-8" style="margin-top: 40px; text-align: justify;">
+        <h3 style="text-align: center; font-weight: bold">Wiki</h3>
+        <p> {{ wiki }} </p>
+
+    </div>
+
+</div>
+
+<div class="row">
+    <div class="col-md-4" style="margin-top: 40px">
+        <ul>
+            {% for tag in tags %}
+            <span class="label label-danger">{{ tag.tag }}</span>
+            {% endfor %}
+            <p>
+                <form role="fave" method="POST" action="/album/details/?name={{ album_name }}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-default" value="{{ album_name }}" name="faveBtn">Fave</button>
+                    <button type="submit" class="btn btn-default" value="{{ album_name }}" name="delBtn">Delete</button>
+                </form>
+            </p>
+        </ul>
+    </div>
+    <div class="col-md-8" style="margin-top: 40px">
+        <h3 style="text-align: justify; font-weight: bold">Tracklist</h3>
+
+        <table class="table table-striped">
+            <thead>
+                <th>Track name</th>
+                <th>Duration</th>
+            </thead>
+            <tbody>
+                {% for track in tracks %}
+                    <tr>
+                    <td> {{ track.name }}</td>
+                    <td> {{ track.duration }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+{%  endblock %}
+
+{% block jspage %}
+     <script>
+       function change() {
+            var elem = document.getElementById("myButton1");
+            if (elem.value=="Fave me!") elem.value = "Added";
+            else elem.value = "Fave me!";
+        }
+    </script>
+{% endblock %}
