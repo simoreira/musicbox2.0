@@ -11,14 +11,15 @@
   </xsl:template>
 
   <xsl:template match="track">
-    <xsl:variable name="mbid"><xsl:value-of select="mbid"/></xsl:variable>
+    <xsl:variable name="name"><xsl:value-of select="name"/></xsl:variable>
+    <xsl:variable name="artist"><xsl:value-of select="artist/name"/></xsl:variable>
     <xsl:variable name="imgSmall"><xsl:value-of select="image[@size='small']"/></xsl:variable>
     <xsl:variable name="imgMedium"><xsl:value-of select="image[@size='medium']"/></xsl:variable>
     <xsl:variable name="imgLarge"><xsl:value-of select="image[@size='large']"/></xsl:variable>
     <xsl:variable name="imgExtraLarge"><xsl:value-of select="image[@size='extralarge']"/></xsl:variable>
 
     <topTracks:track>
-      <rdf:Description rdf:about="http://www.topTracks.com/tracks/{$mbid}">
+      <rdf:Description rdf:about="http://www.topTracks.com/tracks/{$name}">
         <foaf:name><xsl:value-of select="name"/></foaf:name>
         <topTracks:listeners><xsl:value-of select="listeners"/></topTracks:listeners>
         <topTracks:duration><xsl:value-of select="duration"/></topTracks:duration>
@@ -30,7 +31,7 @@
 
         <xsl:for-each select="artist">
           <topTracks:artist>
-            <rdf:Description rdf:about="http://www.topTracks.com/tracks/artist">
+            <rdf:Description rdf:about="http://www.topTracks.com/tracks/{$name}/artist/{$artist}">
               <foaf:name_artist><xsl:value-of select="name"/></foaf:name_artist>
             </rdf:Description>
           </topTracks:artist>

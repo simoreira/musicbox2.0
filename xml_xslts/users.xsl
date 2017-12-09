@@ -20,17 +20,17 @@
 
         <xsl:for-each select="starred">
           <user:starred>
-            <rdf:Description rdf:about="http://www.users.com/users/starred">
+            <rdf:Description rdf:about="http://www.users.com/users/{$name}/starred">
               <xsl:for-each select="fav[@type='artist']">
                 <user:favArt>
-                  <rdf:Description rdf:about="http://www.users.com/users/starred/{.}">
+                  <rdf:Description rdf:about="http://www.users.com/users/{$name}/starred/{.}">
                     <foaf:favArt><xsl:value-of select="."/></foaf:favArt>
                   </rdf:Description>
                 </user:favArt>
               </xsl:for-each>
               <xsl:for-each select="fav[@type='album']">
                 <user:favAlb>
-                  <rdf:Description rdf:about="http://www.users.com/users/starred/{.}">
+                  <rdf:Description rdf:about="http://www.users.com/users/{$name}/starred/{.}">
                     <foaf:favAlb><xsl:value-of select="."/></foaf:favAlb>
                   </rdf:Description>
                 </user:favAlb>
