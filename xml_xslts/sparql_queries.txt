@@ -1,0 +1,378 @@
+SPARQL queries:
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+1) Top 12 artists
+	
+for $b in collection('musicbox/artists.xml')//artists/artist
+	order by xs:integer($b/listeners) descending
+    return  <top> {$b/name, $b/listeners, $b/image[@size='large']}</top>)[position()=1 to 12]}</root>
+
+SELECT ?name ?listeners{
+    ?s artist:artist ?artist.
+    ?artist foaf:name ?name.
+    OPTIONAL {?artist artist:listeners ?listeners}
+}
+ORDER BY DESC(xsd:nonNegativeInteger(?listeners))
+LIMIT 12
+
+nota: por ordem descendente, o valor dos listeners aparecem na mesma random
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+2) Search artist
+
+for $x in collection("musicbox/artists.xml")//artists/artist
+    where (contains($x/name, "%s"))
+    return <artist>{$x/name, $x/image[@size='large']}</artist>}</root>
+
+SELECT ?name ?img_Large
+WHERE{
+    ?s artist:artist ?artist.
+    ?artist foaf:name ?name.
+    OPTIONAL{?artist artist:imgLarge ?img_Large} 
+    FILTER REGEX(?name, "Radiohead", "i")
+}
+
+nota: mudar radiohead para uma variável
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+3) Search album
+
+for $x in collection("musicbox/artists.xml")//artists/artist/album
+    where (contains($x/name, "%s"))
+    return <album>{$x/name, $x/image[@size='large']}</album>
+
+
+SELECT ?name ?img_Large
+WHERE{
+    ?s artist:album ?album.
+    ?album foaf:name_album ?name.
+    OPTIONAL{?album artist:imgLarge_album ?img_Large} 
+    FILTER REGEX(?name, "Amnesiac", "i")
+}
+
+nota: mudar amnesiac para uma variável
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+4) Get all names of artists and image
+
+for $x in collection("musicbox/artists.xml")//artists/artist
+    where starts-with($x/name, "%s")
+    order by $x/name
+    return <artists>{$x/name, $x/image[@size='large']}</artists>
+
+
+SELECT ?name ?img_Large
+WHERE{
+    ?s artist:artist ?artist.
+    ?artist foaf:name ?name.
+    OPTIONAL{?artist artist:imgLarge ?img_Large} 
+    FILTER REGEX(?name, "^a", "i")
+}
+
+nota: mudar o "a" no regex para uma variável
+--------------------------------------------------------------------------------------------------------------------------------------------
+5) Get all albums and image
+
+for $x in collection("musicbox/artists.xml")//artists/artist/album
+    where starts-with($x/name, "%s")
+    order by $x/name
+    return <album>{$x/name, $x/image[@size='large']}</album>
+
+
+SELECT ?name ?img_Large
+WHERE{
+    ?s artist:album ?album.
+    ?album foaf:name_album ?name.
+    OPTIONAL{?album artist:imgLarge_album ?img_Large}
+    FILTER REGEX(?name, "^a", "i") 
+}
+
+nota: mudar o "a" no regex para uma variável
+--------------------------------------------------------------------------------------------------------------------------------------------
+6) Insert favorite
+
+insert node <fav data="%s" type="album">%s</fav>
+    into fn:doc("musicbox/Users.xml")//user[email="simoreira@ua.pt"]/starred
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+7) Delete favorite
+
+delete node fn:doc("musicbox/Users.xml")//user[email="simoreira@ua.pt"]/starred/fav[@data="%s"]
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+8) Get all tracks from given album
+
+for $a in collection("musicbox/artists.xml")//artists/artist/album[name="%s"]/tracks/track
+    return <tracks>{$a/name, $a/duration}</tracks>}
+
+SELECT  ?track_name ?duration
+WHERE{
+    ?s      artist:album     ?album.
+    ?album  foaf:name_album  "1000 Forms of Fear".
+    ?album  artist:tracks    ?tracks .
+    ?tracks foaf:track_name  ?track_name.
+    ?tracks artist:track_duration ?duration
+}
+
+nota: trocar "1000 forms of fear" para variavel
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+9) Get all tags of given album
+
+for $a in collection("musicbox/artists.xml")//artists/artist/album
+    where $a/name="%s"
+    return <tag>{$a/tags/tag/name}</tag>
+
+SELECT  ?name
+WHERE{
+    ?s      artist:album     ?album.
+    ?album  foaf:name_album  "1000 Forms of Fear".
+    ?album  artist:tag       ?tag .
+    ?tag    foaf:tag_name    ?name.
+}
+
+nota: mudar "1000 Forms of Fear" para variável
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+10) Get wiki of album
+
+for $a in collection("musicbox/artists.xml")//artists/artist/album
+    where $a/name="%s"
+    return <wiki>{$a/wiki/summary}</wiki>
+
+
+SELECT ?wiki
+WHERE{
+    ?s artist:album ?album .
+    ?album foaf:name_album "Amnesiac".
+    OPTIONAL{?album artist:wiki ?wiki}
+}
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+11) Get photo of album
+
+for $a in collection('musicbox/artists.xml')//artists/artist/album[name="%s"]/image[@size='extralarge']
+    return <photo>{$a}</photo>
+
+SELECT ?image
+WHERE{
+    ?s     artist:album ?album .
+    ?album foaf:name_album "Amnesiac".
+    ?album artist:imgExtraLarge_album ?image.
+}
+
+nota:trocar Amnesiac por variável
+--------------------------------------------------------------------------------------------------------------------------------------------
+12) Get name of album's artist
+
+for $a in collection('musicbox/artists.xml')//artists/artist/album[name="%s"]
+    return <artists>{$a/artist}</artists>
+
+
+SELECT ?name
+WHERE{
+    ?s     artist:album ?album .
+    ?album foaf:name_album "Amnesiac".
+    ?album artist:artist_name ?name.
+}
+
+nota: trocar amnesiac por variavel
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+13) Insert fave artist
+
+insert node <fav data="%s" type="artist">%s</fav>
+    into fn:doc("musicbox/Users.xml")//user[email="simoreira@ua.pt"]/starred
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+14) Delete fave artist
+
+delete node fn:doc("musicbox/Users.xml")//user[email="simoreira@ua.pt"]/starred/fav[@data="%s"]
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+15) Get image of artist
+
+for $b in collection('musicbox/artists.xml')//artists/artist[name="%s"]/image[@size='extralarge'] 
+    return $b
+
+SELECT ?image
+WHERE{
+    ?s      artist:artist    ?artist .
+    ?artist foaf:name       "Radiohead".
+    ?artist  artist:imgExtraLarge ?image.
+}
+
+nota: trocar radiohead por variável
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+16) Get bio of artist
+
+for $c in collection('musicbox/artists.xml')//artist[name="%s"]
+    return $c/bio/summary
+
+SELECT ?text
+WHERE{
+    ?s artist:artist   ?artist.
+    ?artist foaf:name "Radiohead".
+    ?artist     artist:bio      ?bio.
+    ?bio        foaf:bioSummary ?text.
+}
+
+ńota: por enquanto com Radiohead
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+17)  Get top albums of artist
+
+for $c in collection('musicbox/artists.xml')/lfm/artists//artist//album
+    where $c/artist="%s"
+    order by $c/listeners
+    return <topAlbum>{$c/name, $c/image[@size='large']}</topAlbum>)[position() = 1 to 3]
+
+SELECT ?name ?img_Large
+WHERE{
+    ?s      artist:artist ?artist.
+    ?artist foaf:name     "Radiohead".
+    ?artist artist:album   ?album.
+    ?album  foaf:name_album ?name.
+    ?album artist:imgLarge_album ?img_Large.
+    ?album  artist:album_listeners ?listeners.
+}
+ORDER BY DESC(?listeners) 
+LIMIT 3
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+18) Todos os albums do artista
+
+for $c in collection('musicbox/artists.xml')//artists//artist//album
+    where $c/artist="%s"
+    return <albums>{$c/name, $c/image[@size='large']}</albums>
+
+
+SELECT ?name ?img_Large
+WHERE{
+     ?s artist:artist ?artist.
+     ?artist foaf:name "Radiohead".
+     ?artist artist:album ?album.
+     ?album  foaf:name_album ?name.
+     ?album artist:imgLarge_album ?img_Large
+}
+
+nota: trocar radiohead por uma variável
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+19) Get top portugal
+
+for $c in collection('musicbox/toptrack_portugal.xml')/lfm/tracks/track
+    order by $c/listeners
+    return <topPortugal>{$c/name, <artist>{$c/artist/name/text()}</artist>, $c/image[@size='large']}</topPortugal>)[position() = 1 to 10]
+
+SELECT ?name_track ?name_artist ?img_Large
+WHERE{
+    ?s      topP:track       ?track.
+    ?track  foaf:name        ?name_track.
+    ?track  topP:listeners   ?listeners.
+    ?track  topP:imgLarge    ?img_Large.
+    ?track  topP:artist      ?artist.
+    ?artist foaf:name_artist ?name_artist.
+}
+ORDER BY DESC(?listeners)
+LIMIT 10
+
+nota: os listeners aparecem random
+--------------------------------------------------------------------------------------------------------------------------------------------
+20) Get world top
+
+for $c in collection('musicbox/toptracks.xml')/lfm/tracks/track
+    order by $c/listeners
+    return <topWorld>{$c/name, <artist>{$c/artist/name/text()}</artist>, $c/image[@size='large']}</topWorld>)[position() = 1 to 10]
+
+SELECT ?name_track ?name_artist ?img_Large
+WHERE{
+    ?s      toptracks:track         ?track.
+    ?track  foaf:name               ?name_track.
+    ?track  toptracks:listeners     ?listeners.
+    ?track  toptracks:imgLarge      ?img_Large.
+    ?track  toptracks:artist        ?artist.
+    ?artist foaf:name_artist        ?name_artist.
+}
+ORDER BY DESC(?listeners)
+LIMIT 10
+
+nota: tal como a query 1), os listeners dão random
+--------------------------------------------------------------------------------------------------------------------------------------------
+21) Get name and e-mail of logged on person
+
+for $c in collection('musicbox/Users.xml')//users/user
+    return
+    if ($c/@login="True") then
+        <person>{$c/name, $c/email}</person>
+    else
+        break
+
+
+SELECT ?name ?email
+WHERE{
+    ?s    user:user ?user.
+    ?user foaf:name ?name.
+    ?user user:email ?email.
+     FILTER REGEX(?name, "Inês Moreira", "i")    
+}
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+22) Favorite artists of logged on person
+
+for $c in collection('musicbox/Users.xml')//users/user
+    return
+    if ($c/@login="True") then
+        <artist>{$c/starred/fav[@type="artist"]}</artist>
+    else
+        break
+
+SELECT ?name_artist
+WHERE{
+    ?s         user:user     ?user.
+    ?user      foaf:name     ?name.
+    ?user      user:starred  ?starred.
+    ?starred   user:favArt   ?favorite.
+    ?favorite  foaf:favArt   ?name_artist.
+    FILTER REGEX(?name, "Inês Moreira", "i")    
+}
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+23) Get favorite albums of logged on person
+
+for $c in collection('musicbox/Users.xml')//users/user
+    return
+    if ($c/@login="True") then
+        <album>{$c/starred/fav[@type="album"]}</album>
+    else
+        break
+
+SELECT ?name_artist
+WHERE{
+    ?s         user:user     ?user.
+    ?user      foaf:name     ?name.
+    ?user      user:starred  ?starred.
+    ?starred   user:favAlb   ?favorite.
+    ?favorite  foaf:favAlb   ?name_artist.
+    FILTER REGEX(?name, "Inês Moreira", "i")    
+}
+
+-------------------------------------------------------------
+PREFIX artist:<http://www.artists.com/artist#>
+PREFIX album:<http://www.artists.com/artist#/album#>
+PREFIX track:<http://www.artists.com/album/tracks>
+PREFIX tag: <http://www.artists.com/artist#/album#/tags/>
+PREFIX foaf: <http://xmlns.com/foaf/spec/>
+PREFIX toptracks: <http://www.topTracks.com/tracks#>
+PREFIX toptracks_artist: <http://www.topTracks.com/tracks#/artist#>
+PREFIX topP: <http://www.topPortugal.com/tracks#>
+PREFIX user: <http://www.users.com/users#>
+PREFIX starred: <http://www.users.com/users#/starred#>
