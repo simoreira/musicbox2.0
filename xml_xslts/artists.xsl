@@ -12,17 +12,13 @@
 
   <xsl:template match="artist">
     <xsl:variable name="name"><xsl:value-of select="name"/></xsl:variable>
-    <xsl:variable name="album"><xsl:value-of select="album/name"/></xsl:variable>
-    <xsl:variable name="track"><xsl:value-of select="album/tracks/track/name"/></xsl:variable>
-    <xsl:variable name="tag"><xsl:value-of select="album/tracks/tags/tag/name"/></xsl:variable>
+
+
+
     <xsl:variable name="imgSmall"><xsl:value-of select="image[@size='small']"/></xsl:variable>
     <xsl:variable name="imgMedium"><xsl:value-of select="image[@size='medium']"/></xsl:variable>
     <xsl:variable name="imgLarge"><xsl:value-of select="image[@size='large']"/></xsl:variable>
     <xsl:variable name="imgExtraLarge"><xsl:value-of select="image[@size='extralarge']"/></xsl:variable>
-    <xsl:variable name="alb_imgSmall"><xsl:value-of select="album/image[@size='small']"/></xsl:variable>
-    <xsl:variable name="alb_imgMedium"><xsl:value-of select="album/image[@size='medium']"/></xsl:variable>
-    <xsl:variable name="alb_imgLarge"><xsl:value-of select="album/image[@size='large']"/></xsl:variable>
-    <xsl:variable name="alb_imgExtraLarge"><xsl:value-of select="album/image[@size='extralarge']"/></xsl:variable>
 
     <artist:artist>
       <rdf:Description rdf:about="http://www.artists.com/artist/{$name}">
@@ -34,18 +30,20 @@
         <artist:imgExtraLarge><xsl:value-of select="$imgExtraLarge"/></artist:imgExtraLarge>
 
         <xsl:for-each select="album">
+          <xsl:variable name="album"><xsl:value-of select="name"/></xsl:variable>
           <artist:album>
             <rdf:Description rdf:about="http://www.artists.com/artist/{$name}/album/{$album}">
               <foaf:name_album><xsl:value-of select="name"/></foaf:name_album>
               <artist:artist_name><xsl:value-of select="artist"/></artist:artist_name>
               <artist:album_listeners><xsl:value-of select="listeners"/></artist:album_listeners>
               <artist:wiki><xsl:value-of select="wiki/summary"/></artist:wiki>
-              <artist:imgSmall_album><xsl:value-of select="$alb_imgSmall"/></artist:imgSmall_album>
-              <artist:imgMedium_album><xsl:value-of select="$alb_imgMedium"/></artist:imgMedium_album>
-              <artist:imgLarge_album><xsl:value-of select="$alb_imgLarge"/></artist:imgLarge_album>
-              <artist:imgExtraLarge_album><xsl:value-of select="$alb_imgExtraLarge"/></artist:imgExtraLarge_album>
+              <artist:imgSmall_album><xsl:value-of select="image[@size='small']"/></artist:imgSmall_album>
+              <artist:imgMedium_album><xsl:value-of select="image[@size='medium']"/></artist:imgMedium_album>
+              <artist:imgLarge_album><xsl:value-of select="image[@size='large']"/></artist:imgLarge_album>
+              <artist:imgExtraLarge_album><xsl:value-of select="image[@size='extralarge']"/></artist:imgExtraLarge_album>
 
               <xsl:for-each select="tracks/track">
+                <xsl:variable name="track"><xsl:value-of select="name"/></xsl:variable>
                 <artist:tracks>
                   <rdf:Description rdf:about="http://www.artists.com/artist/{$name}/album/{$album}/tracks/{$track}">
                     <foaf:track_name><xsl:value-of select="name"/></foaf:track_name>
@@ -56,8 +54,9 @@
               </xsl:for-each>
 
               <xsl:for-each select="tags/tag">
+                <xsl:variable name="tag"><xsl:value-of select="name"/></xsl:variable>
                 <artist:tag>
-                  <rdf:Description rdf:about="http://www.artists.com/artist/{$name}/album/{$album}/tags/{$tag}">
+                  <rdf:Description rdf:about="http://www.artists.com/artist/{$name}/album/{$album}/tags/tag/{$tag}">
                     <foaf:tag_name><xsl:value-of select="name"/></foaf:tag_name>
                   </rdf:Description>
                 </artist:tag>
