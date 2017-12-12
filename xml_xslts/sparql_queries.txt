@@ -2,15 +2,16 @@ SPARQL queries:
 
 --------------------------------------------------------------------------------------------------------------------------------------------
 1) Top 12 artists
-	
+
 for $b in collection('musicbox/artists.xml')//artists/artist
 	order by xs:integer($b/listeners) descending
     return  <top> {$b/name, $b/listeners, $b/image[@size='large']}</top>)[position()=1 to 12]}</root>
 
-SELECT ?name ?listeners{
+SELECT ?name ?listeners ?imgLarge{
     ?s artist:artist ?artist.
     ?artist foaf:name ?name.
-    OPTIONAL {?artist artist:listeners ?listeners}
+    ?artist artist:listeners ?listeners
+		?artist artist:imgLarge ?imgLarge
 }
 ORDER BY DESC(xsd:nonNegativeInteger(?listeners))
 LIMIT 12
@@ -29,7 +30,7 @@ SELECT ?name ?img_Large
 WHERE{
     ?s artist:artist ?artist.
     ?artist foaf:name ?name.
-    OPTIONAL{?artist artist:imgLarge ?img_Large} 
+    OPTIONAL{?artist artist:imgLarge ?img_Large}
     FILTER REGEX(?name, "Radiohead", "i")
 }
 
@@ -47,7 +48,7 @@ SELECT ?name ?img_Large
 WHERE{
     ?s artist:album ?album.
     ?album foaf:name_album ?name.
-    OPTIONAL{?album artist:imgLarge_album ?img_Large} 
+    OPTIONAL{?album artist:imgLarge_album ?img_Large}
     FILTER REGEX(?name, "Amnesiac", "i")
 }
 
@@ -66,7 +67,7 @@ SELECT ?name ?img_Large
 WHERE{
     ?s artist:artist ?artist.
     ?artist foaf:name ?name.
-    OPTIONAL{?artist artist:imgLarge ?img_Large} 
+    OPTIONAL{?artist artist:imgLarge ?img_Large}
     FILTER REGEX(?name, "^a", "i")
 }
 
@@ -85,7 +86,7 @@ WHERE{
     ?s artist:album ?album.
     ?album foaf:name_album ?name.
     OPTIONAL{?album artist:imgLarge_album ?img_Large}
-    FILTER REGEX(?name, "^a", "i") 
+    FILTER REGEX(?name, "^a", "i")
 }
 
 nota: mudar o "a" no regex para uma variável
@@ -198,7 +199,7 @@ delete node fn:doc("musicbox/Users.xml")//user[email="simoreira@ua.pt"]/starred/
 --------------------------------------------------------------------------------------------------------------------------------------------
 15) Get image of artist
 
-for $b in collection('musicbox/artists.xml')//artists/artist[name="%s"]/image[@size='extralarge'] 
+for $b in collection('musicbox/artists.xml')//artists/artist[name="%s"]/image[@size='extralarge']
     return $b
 
 SELECT ?image
@@ -244,7 +245,7 @@ WHERE{
     ?album artist:imgLarge_album ?img_Large.
     ?album  artist:album_listeners ?listeners.
 }
-ORDER BY DESC(?listeners) 
+ORDER BY DESC(?listeners)
 LIMIT 3
 
 --------------------------------------------------------------------------------------------------------------------------------------------
@@ -322,7 +323,7 @@ WHERE{
     ?s    user:user ?user.
     ?user foaf:name ?name.
     ?user user:email ?email.
-     FILTER REGEX(?name, "Inês Moreira", "i")    
+     FILTER REGEX(?name, "Inês Moreira", "i")
 }
 
 --------------------------------------------------------------------------------------------------------------------------------------------
@@ -342,7 +343,7 @@ WHERE{
     ?user      user:starred  ?starred.
     ?starred   user:favArt   ?favorite.
     ?favorite  foaf:favArt   ?name_artist.
-    FILTER REGEX(?name, "Inês Moreira", "i")    
+    FILTER REGEX(?name, "Inês Moreira", "i")
 }
 
 --------------------------------------------------------------------------------------------------------------------------------------------
@@ -362,7 +363,7 @@ WHERE{
     ?user      user:starred  ?starred.
     ?starred   user:favAlb   ?favorite.
     ?favorite  foaf:favAlb   ?name_artist.
-    FILTER REGEX(?name, "Inês Moreira", "i")    
+    FILTER REGEX(?name, "Inês Moreira", "i")
 }
 
 -------------------------------------------------------------
@@ -376,3 +377,4 @@ PREFIX toptracks_artist: <http://www.topTracks.com/tracks#/artist#>
 PREFIX topP: <http://www.topPortugal.com/tracks#>
 PREFIX user: <http://www.users.com/users#>
 PREFIX starred: <http://www.users.com/users#/starred#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#> 

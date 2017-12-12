@@ -21,13 +21,13 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', musicbox.views.home, name='home'),
     url(r'^search/$',musicbox.views.search_query,name='search'),
-    url(r'^login/', musicbox.views.login, name='login'),
+    #url(r'^login/', musicbox.views.login, name='login'),
     url(r'^artists/$', musicbox.views.artists, name='artists'),
     url(r'^album/$', musicbox.views.albums, name='albums'),
     url(r'^charts/$', musicbox.views.charts, name='charts'),
     url(r'^album/details/$', musicbox.views.albuminfo, name='details'),
     url(r'^artists/details/$', musicbox.views.artist_page, name='artist_page'),
-    url(r'^register/$', musicbox.views.register, name='register'),
+    #url(r'^register/$', musicbox.views.register, name='register'),
     url(r'^profile/$', musicbox.views.profile, name='profile')
 
 ]
