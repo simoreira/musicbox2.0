@@ -2,32 +2,41 @@
 
 {% block content %}
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-12" xmlns:foaf = "http://xmlns.com/foaf/spec/"
+                   xmlns:artist="http://www.artists.com/artist#" typeof="artist:artist">
 
+
+            {% if artistName != None %}
                 <h3 style="text-align: center; margin-top: 40px;">Artists</h3>
+            {% endif %}
             {% for a in artists %}
                 <div class="col-md-3">
-                    <a href='/artists/details/?name={{ a.Name }}'>
-                        <img class="img-responsive img-thumbnail" src="{{ a.Image }}">
-                        <h5>{{ a.Name }}</h5>
+                    <a href='/artists/details/?name={{ a.Name }}' about="http://www.artists.com/artist/{{ a.Name }}">
+                        <img class="img-responsive img-thumbnail" src="{{ a.Image }}" property="artist:imgLarge">
+                        <h5 property="foaf:name">{{ a.Name }}</h5>
                     </a>
                 </div>
             {% endfor %}
+
         </div>
     </div>
 
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-12" xmlns:foaf = "http://xmlns.com/foaf/spec/"
+                   xmlns:artist="http://www.artists.com/artist#" typeof="artist:album">
 
-                <h3 style="text-align: center; margin-top: 40px;">Albums</h3>
-            {% for a in albums %}
-                <div class="col-md-3">
-                    <a href='/album/details/?name={{ a.Name }}'>
-                        <img class="img-responsive img-thumbnail" src="{{ a.Image }}">
-                        <h5>{{ a.Name }}</h5>
-                    </a>
-                </div>
-            {% endfor %}
+                {% if albumName != None %}
+                        <h3 style="text-align: center; margin-top: 40px;">Albums</h3>
+                {% endif %}
+                {% for a in albums %}
+
+                    <div class="col-md-3">
+                        <a href='/album/details/?name={{ a.Name }}' about="http://www.artists.com/{{ a.Artist }}/album/{{ a.Name }}">
+                            <img class="img-responsive img-thumbnail" src="{{ a.Image }}" property="artist:imgLarge_album">
+                            <h5 property="foaf:name_album" >{{ a.Name }}</h5>
+                        </a>
+                    </div>
+                {% endfor %}
         </div>
     </div>
 {% endblock %}

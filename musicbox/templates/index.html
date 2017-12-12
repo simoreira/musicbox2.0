@@ -3,13 +3,14 @@
 {% block content %}
 
     <div class="row" style="margin-top: 40px;">
-        <div class="col-md-12">
+        <div class="col-md-12" xmlns:foaf = "http://xmlns.com/foaf/spec/"
+                   xmlns:artist="http://www.artists.com/artists#" typeof="artist:artist">
             <h3 style="text-align: center; font-weight: bold; margin-bottom: 20px;" ;>Top 12 Artists</h3>
             {% for a in artists %}
-                <div class="col-md-3">
+                <div class="col-md-3" about="http://www.artist.com/artist/{{ a.name }}">
                     <a href='/artists/details/?name={{ a.name }}'>
-                        <img class="img-responsive img-thumbnail" src="{{ a.image }}">
-                        <h5>{{ a.count }}. {{ a.name}} <br> <i><p style="font-size: small">{{ a.listeners }} listeners</p></i></h5>
+                        <img class="img-responsive img-thumbnail" property="artist:imgLarge" src="{{ a.image }}">
+                        <h5 property="foaf:name">{{ a.count }}. {{ a.name}} <br> <i><p style="font-size: small" property="artist:listeners">{{ a.listeners }} listeners</p></i></h5>
 
                     </a>
                 </div>

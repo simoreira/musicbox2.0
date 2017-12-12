@@ -75,10 +75,11 @@ def search_query(request):
 
     search_album = """  PREFIX artist:<http://www.artists.com/artist#>
                         PREFIX foaf: <http://xmlns.com/foaf/spec/> 
-                        SELECT ?name ?img_Large
+                        SELECT ?name ?img_Large ?name_artist
                         WHERE{
                             ?s artist:album ?album.
                             ?album foaf:name_album ?name.
+                            ?album artist:artist_name ?name_artist
                             OPTIONAL{?album artist:imgLarge_album ?img_Large}
                             FILTER REGEX(?name, "%s", "i")
                         } """ % term
@@ -89,12 +90,14 @@ def search_query(request):
     res = json.loads(res)
     artists_result = dict()
     artists_list = []
+    artists_name = ""
 
     for e in res['results']['bindings']:
         artists_result['Name'] = e['name']['value']
         artists_result['Image'] = e['img_Large']['value']
         artists_list.append(artists_result)
         artists_result = dict()
+        artists_name = e['name']['value']
 
     payload_query = {"query": search_album}
     ress = db_info[1].sparql_select(body=payload_query,
@@ -102,21 +105,24 @@ def search_query(request):
     ress = json.loads(ress)
     albums_result = dict()
     albums_list = []
+    albums_name = ""
 
     for e in ress['results']['bindings']:
         albums_result['Name'] = e['name']['value']
         albums_result['Image'] = e['img_Large']['value']
+        albums_result['Artist'] = e['name_artist']['value']
         albums_list.append(albums_result)
         albums_result = dict()
+        albums_name = e['name']['value']
 
     if not albums_list and not artists_list:
         return render(request, 'searchNFound.html')
     elif not albums_list and artists_list:
-        return render(request, 'search.html', {'artists': artists_list})
+        return render(request, 'search.html', {'artists': artists_list,'artistName':artists_name})
     elif not artists_list and albums_list:
-        return render(request, 'search.html', {'albums': albums_list})
+        return render(request, 'search.html', {'albums': albums_list, 'albumName':albums_name})
     else:
-        return render(request, 'search.html', {'albums': albums_list, 'artists': artists_list})
+        return render(request, 'search.html', {'albums': albums_list, 'artists': artists_list, 'albumName':albums_name, 'artistName':artists_name})
 
 
 def artists(request):
@@ -183,10 +189,11 @@ def albums(request):
 
     albums = """    PREFIX artist:<http://www.artists.com/artist#>
                     PREFIX foaf: <http://xmlns.com/foaf/spec/> 
-                    SELECT ?name ?img_Large
+                    SELECT ?name ?img_Large ?artist
                     WHERE{
                         ?s artist:album ?album.
                         ?album foaf:name_album ?name.
+                        ?album artist:artist_name ?artist
                         OPTIONAL{?album artist:imgLarge_album ?img_Large}
                         FILTER REGEX(?name, "^%s", "i")
                     }       
@@ -202,6 +209,7 @@ def albums(request):
     for e in res['results']['bindings']:
         albums_result['name'] = e['name']['value']
         albums_result['image'] = e['img_Large']['value']
+        albums_result['artist'] = e['name']['value']
         albums_list.append(albums_result)
         albums_result = dict()
 
@@ -241,12 +249,14 @@ def albuminfo(request):
     res = json.loads(res)
     tracks_result = dict()
     tracks_list = []
+    tracks_name = ""
 
     for e in res['results']['bindings']:
         tracks_result['name'] = e['track_name']['value']
         tracks_result['duration'] = e['duration']['value']
         tracks_list.append(tracks_result)
         tracks_result = dict()
+        tracks_name = e['track_name']['value']
 
     tags = """      PREFIX artist:<http://www.artists.com/artist#>
                     PREFIX foaf: <http://xmlns.com/foaf/spec/> 
@@ -326,7 +336,7 @@ def albuminfo(request):
     for e in ress['results']['bindings']:
         artist_result = e['name']['value']
 
-    return render(request, 'albuminfo.html', {'tracks': tracks_list, 'tags':tags_result, 'wiki':wiki_result, 'photo':photo_result, 'artist':artist_result, 'album_name':album_name })
+    return render(request, 'albuminfo.html', {'tracks': tracks_list, 'tags':tags_result, 'wiki':wiki_result, 'photo':photo_result, 'artist':artist_result, 'album_name':album_name, 'track_name':tracks_name })
 
 def artist_page(request):
     assert isinstance(request, HttpRequest)
@@ -463,6 +473,7 @@ def charts(request):
     top_Portugal_result = dict()
     top_Portugal_list = []
     count = 0
+    topP_name = ""
 
     for e in res['results']['bindings']:
         count +=1
@@ -472,6 +483,7 @@ def charts(request):
         top_Portugal_result['count'] = count
         top_Portugal_list.append(top_Portugal_result)
         top_Portugal_result = dict()
+        topP_name = e['name_track']['value']
 
     top_World = """         PREFIX foaf: <http://xmlns.com/foaf/spec/>
                             PREFIX toptracks: <http://www.topTracks.com/tracks#>
@@ -496,6 +508,7 @@ def charts(request):
     top_World_result = dict()
     top_World_list = []
     count2 = 0
+    topW_name = ""
 
     for e in res['results']['bindings']:
         count2 += 1
@@ -505,8 +518,9 @@ def charts(request):
         top_World_result['count'] = count2
         top_World_list.append(top_World_result)
         top_World_result = dict()
+        topW_name = e['name_track']['value']
 
-    return render(request, 'charts.html', {'topPortugal': top_Portugal_list, 'topWorld':top_World_list})
+    return render(request, 'charts.html', {'topPortugal': top_Portugal_list, 'topWorld':top_World_list, 'track_port':topP_name, 'tracks_world': topW_name})
 
 def profile(request):
     assert isinstance(request, HttpRequest)

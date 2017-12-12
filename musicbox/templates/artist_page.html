@@ -2,10 +2,11 @@
 
 {% block content %}
 
-    <div class="row" style="margin-top: 40px;">
-        <div class="col-md-4" style="text-align: center">
-            <h3 style="font-weight: bold">{{ name }}</h3>
-            <img src=" {{ image }}"/>
+    <div class="row" style="margin-top: 40px;" xmlns:foaf = "http://xmlns.com/foaf/spec/"
+                   xmlns:artist="http://www.artists.com/artist#" typeof="artist:artist">
+        <div class="col-md-4" style="text-align: center" about="http://www.artists.com/artist/{{ name }}">
+            <h3 style="font-weight: bold" property="foaf:name">{{ name }}</h3>
+            <img property="artist:imgLarge" src=" {{ image }}"/>
                 <p>
                 <form role="fave" method="POST" action="/artists/details/?name={{ name }}">
                     {% csrf_token %}
@@ -14,31 +15,33 @@
                 </form>
             </p>
         </div>
-        <div class="co-md-6" style="margin-top: 40px; text-align: justify;">
+        <div class="co-md-6" style="margin-top: 40px; text-align: justify;" about="http://www.artists.com/artist/{{ name }}/bio">
             <h3 style="text-align: center; font-weight: bold">Biography</h3>
-            <p> {{ bio }} </p>
+            <p property="foaf:bioSummary"> {{ bio }} </p>
         </div>
     </div>
 
-    <div class="row" style="margin-top: 40px">
+    <div class="row" style="margin-top: 40px" xmlns:foaf = "http://xmlns.com/foaf/spec/"
+                   xmlns:artist="http://www.artists.com/artist#" typeof="artist:album">
         <h3 style="text-align: center; font-weight: bold; margin-bottom: 20px;">Top Albums</h3>
         {% for a in album%}
-        <div class="col-md-4" style="text-align: center;">
+        <div class="col-md-4" style="text-align: center;" about="http://www.artists.com/artist/{{ name }}/album/{{ a.name }}">
             <a href='/album/details/?name={{ a.name }}'>
-                <img class="img-responsive img-thumbnail" src={{ a.image }}>
-                <h5>{{ a.name }}</h5>
+                <img class="img-responsive img-thumbnail" property="artist:imgLarge_album" src={{ a.image }}>
+                <h5 property="foaf:name_album">{{ a.name }}</h5>
             </a>
         </div>
         {% endfor %}
     </div>
 
-    <div class="row" style="margin-top: 40px">
+    <div class="row" style="margin-top: 40px" xmlns:foaf = "http://xmlns.com/foaf/spec/"
+                   xmlns:artist="http://www.artists.com/artist#" typeof="artist:album">
         <h3 style="text-align: center; font-weight: bold; margin-bottom: 20px;">All Albums</h3>
         {% for l in lista%}
-        <div class="col-md-4" style="text-align: center;">
+        <div class="col-md-4" style="text-align: center;" about="http://www.artists.com/artist/{{ name }}/album/{{ l.name }}">
             <a href='/album/details/?name={{ l.name }}'>
-                <img class="img-responsive img-thumbnail" src={{ l.image }}>
-                <h5>{{ l.name }}</h5>
+                <img class="img-responsive img-thumbnail" property="artist:imgLarge_album" src={{ l.image }}>
+                <h5 property="foaf:name_album">{{ l.name }}</h5>
             </a>
         </div>
         {% endfor %}

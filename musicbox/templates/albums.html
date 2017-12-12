@@ -12,12 +12,13 @@
     </ul>
 </div>
 
-<div class="row" style="margin-top: 10px">
+<div class="row" style="margin-top: 10px" xmlns:foaf = "http://xmlns.com/foaf/spec/"
+                   xmlns:artist="http://www.artists.com/artist#" typeof="artist:album">
     {% for a in albums %}
         <div class="col-md-3">
-            <a href='/album/details/?name={{ a.name }}'>
-                <img class="img-responsive img-thumbnail" src="{{ a.image }}">
-                <h5>{{ a.name }}</h5>
+            <a href='/album/details/?name={{ a.name }}' about="http://www.artists.com/artist/{{ a.artist }}/album/{{ a.name }}">
+                <img class="img-responsive img-thumbnail" src="{{ a.image }}" property="artist:imgLarge_album">
+                <h5 property="foaf:name_album">{{ a.name }}</h5>
             </a>
         </div>
     {% endfor %}

@@ -4,29 +4,31 @@
 
     <div class="row">
         <h2 style="text-align: center; font-weight: bold; padding: 35px">Charts</h2>
-        <div class="col-md-6 ">
+        <div class="col-md-6" xmlns:foaf = "http://xmlns.com/foaf/spec/"
+                   xmlns:topP="http://www.topPortugal.com/tracks#" typeof="topP:track">
             <h3 style="text-align: center; font-weight: bold" ;>Portugal Top 10 Tracks</h3>
 
-            <table class="table table-hover">
+            <table class="table table-hover" about="http://www.topPortugal.com/tracks/{{ track_port }}">
                 <tbody>
                 {% for l in topPortugal %}
                     <tr class='clickable-row' data-href='/artists/details/?name={{ l.artist }}'>
-                        <td><img class=" img-thumbnail" style="margin-bottom: 1px;" src="{{ l.image }}"></td>
-                        <td><h5>{{ l.count }}. {{ l.artist }}-{{ l.name }}</h5></td>
+                        <td><img class=" img-thumbnail" style="margin-bottom: 1px;" property="topP:imgLarge" src="{{ l.image }}"></td>
+                        <td><h5 property="foaf:name">{{ l.count }}. {{ l.artist }}-{{ l.name }}</h5></td>
                     </tr>
                 {% endfor %}
                 </tbody>
             </table>
 
         </div>
-        <div class="col-md-6 col-lg-5">
+        <div class="col-md-6" xmlns:foaf = "http://xmlns.com/foaf/spec/"
+                   xmlns:topTracks="http://www.topTracks.com/tracks#" typeof="topTracks:track">
             <h3 style="text-align: center; font-weight: bold;">World Top 10 Tracks</h3>
-            <table class="table table-hover">
+            <table class="table table-hover" about="http://www.topTracks.com/tracks/{{ tracks_world }}">
                 <tbody>
                 {% for l in topWorld %}
                     <tr class='clickable-row' data-href='/artists/details/?name={{ l.artist }}'>
-                        <td><img class=" img-thumbnail" style="margin-bottom: 1px;" src="{{ l.image }}"></td>
-                        <td><h5>{{ l.count }}. {{ l.artist }}-{{ l.name }}</h5></td>
+                        <td><img class=" img-thumbnail" style="margin-bottom: 1px;"  property="topTracks:imgLarge" src="{{ l.image }}"></td>
+                        <td><h5 property="foaf:name">{{ l.count }}. {{ l.artist }}-{{ l.name }}</h5></td>
                     </tr>
                 {% endfor %}
                 </tbody>
