@@ -25,7 +25,7 @@ def home(request):
 
     top_artist = """    PREFIX artist:<http://www.artists.com/artist#>
                    PREFIX foaf: <http://xmlns.com/foaf/spec/>
-                   PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#> 
+                   PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
                    SELECT ?name ?listeners ?imgLarge{
                         ?s artist:artist ?artist.
                         ?artist foaf:name ?name.
@@ -63,7 +63,7 @@ def search_query(request):
     term = search.get('search_term')[0]
 
     search_artist = """     PREFIX artist:<http://www.artists.com/artist#>
-                            PREFIX foaf: <http://xmlns.com/foaf/spec/> 
+                            PREFIX foaf: <http://xmlns.com/foaf/spec/>
                             SELECT ?name ?img_Large
                             WHERE{
                                 ?s artist:artist ?artist.
@@ -74,7 +74,7 @@ def search_query(request):
                    """ %term
 
     search_album = """  PREFIX artist:<http://www.artists.com/artist#>
-                        PREFIX foaf: <http://xmlns.com/foaf/spec/> 
+                        PREFIX foaf: <http://xmlns.com/foaf/spec/>
                         SELECT ?name ?img_Large ?name_artist
                         WHERE{
                             ?s artist:album ?album.
@@ -144,7 +144,7 @@ def artists(request):
     db_info=database()
 
     artists = """       PREFIX artist:<http://www.artists.com/artist#>
-                        PREFIX foaf: <http://xmlns.com/foaf/spec/> 
+                        PREFIX foaf: <http://xmlns.com/foaf/spec/>
                         SELECT ?name ?img_Large
                         WHERE{
                             ?s artist:artist ?artist.
@@ -188,7 +188,7 @@ def albums(request):
     db_info=database()
 
     albums = """    PREFIX artist:<http://www.artists.com/artist#>
-                    PREFIX foaf: <http://xmlns.com/foaf/spec/> 
+                    PREFIX foaf: <http://xmlns.com/foaf/spec/>
                     SELECT ?name ?img_Large ?artist
                     WHERE{
                         ?s artist:album ?album.
@@ -196,7 +196,7 @@ def albums(request):
                         ?album artist:artist_name ?artist
                         OPTIONAL{?album artist:imgLarge_album ?img_Large}
                         FILTER REGEX(?name, "^%s", "i")
-                    }       
+                    }
             """ %letter
 
     payload_query = {"query": albums}
@@ -222,17 +222,43 @@ def albuminfo(request):
     if request.POST:
         if 'faveBtn' in request.POST:
             name_album = request.POST['faveBtn']
-            ##complete query
+            addAlbum =  """     PREFIX foaf: <http://xmlns.com/foaf/spec/>
+                                PREFIX user: <http://www.users.com/users#>
+                                PREFIX starred: <http://www.users.com/users#/starred#>
+                                INSERT {
+                                    ?favorite foaf:favAlb "%s" .
+                                }
+                                WHERE{
+                                    ?s         user:user     ?user.
+                                    ?user      foaf:name     "Inês Moreira".
+                                    ?user      user:starred  ?starred.
+                                    ?starred   user:favAlb   ?favorite.
+                                }
+                        """ % name_album
+            payload_query = {"update": addAlbum}
+            res = db_info[1].sparql_update(body=payload_query,
+                                           repo_name=db_info[0])
+
         elif 'delBtn' in request.POST:
             album_delete = request.POST['delBtn']
-            ##complete query
+            delete_album =  """ PREFIX foaf: <http://xmlns.com/foaf/spec/>
+                                DELETE
+                                WHERE{
+                                    ?favorite foaf:favAlb "%s".
+                                }
+                            """ % album_delete
+
+            payload_query = {"update": delete_album}
+            res = db_info[1].sparql_update(body=payload_query,
+                                           repo_name=db_info[0])
+
         else:
             pass
 
     album_name = request.GET['name']
 
     tracks = """    PREFIX artist:<http://www.artists.com/artist#>
-                    PREFIX foaf: <http://xmlns.com/foaf/spec/> 
+                    PREFIX foaf: <http://xmlns.com/foaf/spec/>
                     SELECT  ?track_name ?duration
                     WHERE{
                         ?s      artist:album     ?album.
@@ -240,7 +266,7 @@ def albuminfo(request):
                         ?album  artist:tracks    ?tracks .
                         ?tracks foaf:track_name  ?track_name.
                         ?tracks artist:track_duration ?duration.
-                    } 
+                    }
              """ % album_name
 
     payload_query = {"query": tracks}
@@ -259,14 +285,14 @@ def albuminfo(request):
         tracks_name = e['track_name']['value']
 
     tags = """      PREFIX artist:<http://www.artists.com/artist#>
-                    PREFIX foaf: <http://xmlns.com/foaf/spec/> 
+                    PREFIX foaf: <http://xmlns.com/foaf/spec/>
                     SELECT  ?name
                     WHERE{
                         ?s      artist:album     ?album.
                         ?album  foaf:name_album  "%s".
                         ?album  artist:tag       ?tag .
                         ?tag    foaf:tag_name    ?name.
-                    } 
+                    }
                  """ % album_name
 
     payload_query = {"query": tags}
@@ -279,7 +305,7 @@ def albuminfo(request):
         tags_result = e['name']['value']
 
     wiki = """      PREFIX artist:<http://www.artists.com/artist#>
-                    PREFIX foaf: <http://xmlns.com/foaf/spec/> 
+                    PREFIX foaf: <http://xmlns.com/foaf/spec/>
                     SELECT ?wiki
                     WHERE{
                         ?s artist:album ?album .
@@ -299,13 +325,13 @@ def albuminfo(request):
 
 
     photo = """     PREFIX artist:<http://www.artists.com/artist#>
-                    PREFIX foaf: <http://xmlns.com/foaf/spec/> 
+                    PREFIX foaf: <http://xmlns.com/foaf/spec/>
                     SELECT ?image
                     WHERE{
                         ?s     artist:album ?album .
                         ?album foaf:name_album "%s".
                         ?album artist:imgExtraLarge_album ?image.
-                    }                
+                    }
             """ % album_name
 
     payload_query = {"query": photo}
@@ -318,7 +344,7 @@ def albuminfo(request):
         photo_result = e['image']['value']
 
     artist = """    PREFIX artist:<http://www.artists.com/artist#>
-                    PREFIX foaf: <http://xmlns.com/foaf/spec/> 
+                    PREFIX foaf: <http://xmlns.com/foaf/spec/>
                     SELECT ?name
                     WHERE{
                         ?s     artist:album ?album .
@@ -345,9 +371,37 @@ def artist_page(request):
     if request.POST:
         if 'faveBtn' in request.POST:
             name_artist = request.POST['faveBtn']
+            addArtist = """     PREFIX foaf: <http://xmlns.com/foaf/spec/>
+                                PREFIX user: <http://www.users.com/users#>
+                                PREFIX starred: <http://www.users.com/users#/starred#>
+                                INSERT {
+                                    ?favorite foaf:favArt "%s" .
+                                }
+                                WHERE{
+                                    ?s         user:user     ?user.
+                                    ?user      foaf:name     "Inês Moreira".
+                                    ?user      user:starred  ?starred.
+                                    ?starred   user:favArt   ?favorite.
+                                }
+                        """ %name_artist
+
+            payload_query = {"update": addArtist}
+
+            res = db_info[1].sparql_update(body=payload_query,
+                                           repo_name=db_info[0])
 
         elif 'delBtn' in request.POST:
             artist_delete = request.POST['delBtn']
+            deleteArtist = """  PREFIX foaf: <http://xmlns.com/foaf/spec/>
+                                DELETE
+                                WHERE{
+                                     ?favorite  foaf:favArt   "%s".
+                                }
+                            """ % artist_delete
+
+            payload_query = {"update": deleteArtist}
+            res = db_info[1].sparql_update(body=payload_query,
+                                           repo_name=db_info[0])
         else:
             pass
 
@@ -360,7 +414,7 @@ def artist_page(request):
                         ?s      artist:artist    ?artist .
                         ?artist foaf:name       "%s".
                         ?artist  artist:imgExtraLarge ?image.
-                    } 
+                    }
             """ % artist_name
 
     payload_query = {"query": image}
@@ -452,7 +506,7 @@ def charts(request):
 
     top_Portugal =  """     PREFIX foaf: <http://xmlns.com/foaf/spec/>
                             PREFIX topP: <http://www.topPortugal.com/tracks#>
-                            PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#> 
+                            PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
                             SELECT ?name_track ?name_artist ?img_Large
                             WHERE{
                                 ?s      topP:track       ?track.
@@ -487,7 +541,7 @@ def charts(request):
 
     top_World = """         PREFIX foaf: <http://xmlns.com/foaf/spec/>
                             PREFIX toptracks: <http://www.topTracks.com/tracks#>
-                            PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#> 
+                            PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
                             SELECT ?name_track ?name_artist ?img_Large
                             WHERE{
                                 ?s      toptracks:track         ?track.
@@ -607,4 +661,4 @@ def profile(request):
             album_list.append(album_result)
             album_result = dict()
 
-    return render(request, 'profile.html', {'name': person_name, 'email':person_name, 'artists':artist_list, 'albums':album_list})
+    return render(request, 'profile.html', {'name': person_name, 'email':person_email, 'artists':artist_list, 'albums':album_list})
