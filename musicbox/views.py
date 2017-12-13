@@ -400,10 +400,14 @@ def albuminfo(request):
     ress = db_info[1].sparql_select(body=payload_query,
                                     repo_name=db_info[0])
     ress = json.loads(ress)
-    tags_result = ""
+    tags_result = dict()
+    tags_list = []
 
     for e in ress['results']['bindings']:
-        tags_result = e['name']['value']
+        tags_result['name'] = e['name']['value']
+        tags_list.append(tags_result)
+        tags_result= dict()
+
 
     wiki = """      PREFIX artist:<http://www.artists.com/artist#>
                     PREFIX foaf: <http://xmlns.com/foaf/spec/>
@@ -462,7 +466,7 @@ def albuminfo(request):
     for e in ress['results']['bindings']:
         artist_result = e['name']['value']
 
-    return render(request, 'albuminfo.html', {'tracks': tracks_list, 'tags':tags_result, 'wiki':wiki_result, 'photo':photo_result, 'artist':artist_result, 'album_name':album_name, 'track_name':tracks_name })
+    return render(request, 'albuminfo.html', {'tracks': tracks_list, 'tags':tags_result, 'wiki':wiki_result, 'photo':photo_result, 'artist':artist_result, 'album_name':album_name, 'track_name':tracks_name, 'tags':tags_list })
 
 def artist_page(request):
     assert isinstance(request, HttpRequest)

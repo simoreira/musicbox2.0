@@ -1,6 +1,9 @@
 <?xml version="1.0"?>
 
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:artist="http://www.artists.com/artist#" xmlns:foaf="http://xmlns.com/foaf/spec/">
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                              xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+                              xmlns:artist="http://www.artists.com/artist#"
+                              xmlns:foaf="http://xmlns.com/foaf/spec/">
 
   <xsl:template match="/">
     <rdf:RDF>
@@ -12,9 +15,6 @@
 
   <xsl:template match="artist">
     <xsl:variable name="name"><xsl:value-of select="name"/></xsl:variable>
-
-
-
     <xsl:variable name="imgSmall"><xsl:value-of select="image[@size='small']"/></xsl:variable>
     <xsl:variable name="imgMedium"><xsl:value-of select="image[@size='medium']"/></xsl:variable>
     <xsl:variable name="imgLarge"><xsl:value-of select="image[@size='large']"/></xsl:variable>

@@ -5,7 +5,9 @@
         <password>admin123</password>
         <starred>
             <fav type="artist" data="Radiohead">Radiohead</fav>
-            <fav type="album" data="Paranoid Android">Paranoid Android</fav>
+            <fav type="artist" data="Nicki Minaj">Nicki Minaj</fav>
+            <fav type="album" data="Amnesiac">Amnesiac</fav>
+            <fav type="album" data="Abbey Road">Abbey Road</fav>
         </starred>
     </user>
 </users>

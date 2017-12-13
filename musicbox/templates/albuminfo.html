@@ -22,7 +22,7 @@
     <div class="col-md-4" style="margin-top: 40px" xmlns:foaf = "http://xmlns.com/foaf/spec/" xmlns:artist="http://www.artists.com/artist#" typeof="artist:album">
         <ul>
             {% for tag in tags %}
-            <span class="label label-danger" about="http://www.artists.com/artist/{{ artist }}/album/{{ album_name }}/tags/tag/{{ tag }}" rel="artist:tag" property="foaf:tag_name">{{ tag.tag }}</span>
+            <span class="label label-danger" about="http://www.artists.com/artist/{{ artist }}/album/{{ album_name }}/tags/tag/{{ tag }}" rel="artist:tag" property="foaf:tag_name">{{ tag.name }}</span>
             {% endfor %}
             <p>
                 <form role="fave" method="POST" action="/album/details/?name={{ album_name }}">
