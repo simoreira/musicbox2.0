@@ -1,0 +1,84 @@
+Arctic Monkeys:Q170599
+Arcade Fire:Q58608
+Ariana Grande:Q151892
+Adele:Q23215
+Alt-J:Q47996
+A Rocket To The Moon:Q300543
+Beyoncé:Q36153
+Bruno Mars:Q1450
+Coldplay:Q45188
+Chris Brown:Q155700
+Childish Gambino:Q1239933
+David Bowie:Q5383
+Dua Lipa:Q21914464
+Drake:Q33240
+Daft Punk:Q185828
+Demi Lovato:Q41173
+DJ Khaled:Q80805
+Desiigner:Q23091498
+Disturbed:Q131366
+Ed Sheeran:Q47447
+Eminem:Q5608
+Electric Light Orchestra:Q218255
+Foo Fighters:Q483718
+Fleetwood Mac:Q106648
+Future:Q3445057
+Gorillaz:Q189991
+Green Day:Q47871
+Halsey:Q18534249
+Harry Styles:Q3626966
+Imagine Dragons:Q391348
+Incubus:Q1661036
+Iron Maiden:Q42482
+J. Cole:Q204018
+John Mayer:Q215215
+Kendrick Lamar:Q130798
+Katy Perry:Q42493
+Khalid:Q28816483
+Linkin Park:Q261
+Lorde:Q13476175
+Lana Del Rey:Q37150
+Lady Gaga:Q19848
+Led Zeppelin:Q2331
+Little Mix:Q158419
+Lights:Q242437
+Maroon 5:Q182223
+Metallica:Q15920
+Miley Cyrus:Q4235
+Michael Jackson:Q2831
+Muse:Q22151
+Migos:Q15777045
+Nirvana:Q11649
+Nicki Minaj:Q162202
+Nickelback:Q483802
+Oasis:Q382890
+Owl City:Q207938
+Pink Floyd:Q2306
+P!nk:Q160009
+Portugal. The Man:Q606879
+Paramore:Q473466
+Queen:Q15862
+Queens of the Stone Age:Q1243718
+Radiohead:Q44190
+Rihanna:Q36844
+Sia:Q181484
+Sky Sailing:Q2344784
+Shawn Mendes:Q17198340
+The Killers:Q220730
+Taylor Swift:Q26876
+The Beatles:Q1299
+The Weeknd:Q2121062
+The Rolling Stones:Q11036
+The xx:Q869367
+The National:Q1142566
+Twenty One Pilots:Q7857806
+Usher:Q165911
+U2:Q396
+Van Morrison:Q272203
+Van Halen:Q190155
+Weezer:Q209956
+Wham!:Q744087
+XXXTentacion:Q28561969
+Young Thug:Q15637814
+Yo La Tengo:Q221021
+ZZ Top:Q136591

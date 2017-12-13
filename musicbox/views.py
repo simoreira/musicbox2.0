@@ -1,5 +1,4 @@
 from django.shortcuts import render
-
 from urllib.request import urlopen
 import xml.dom.minidom
 import os
@@ -7,16 +6,17 @@ from django.http import HttpRequest
 import json
 from s4api.graphdb_api import GraphDBApi
 from s4api.swagger import ApiClient
-
+from SPARQLWrapper import SPARQLWrapper, JSON
 
 
 def database():
-        endpoint = "http://localhost:7200"
-        client = ApiClient(endpoint=endpoint)
-        accessor = GraphDBApi(client)
-        repo_name = "musicbox"
+    endpoint = "http://localhost:7200"
+    client = ApiClient(endpoint=endpoint)
+    accessor = GraphDBApi(client)
+    repo_name = "musicbox"
 
-        return(repo_name, accessor)
+    return (repo_name, accessor)
+
 
 def home(request):
     assert isinstance(request, HttpRequest)
@@ -38,7 +38,7 @@ def home(request):
 
     payload_query = {"query": top_artist}
     res = db_info[1].sparql_select(body=payload_query,
-                                 repo_name=db_info[0])
+                                   repo_name=db_info[0])
     res = json.loads(res)
     top_artists_result = dict()
     top_artists_list = []
@@ -47,13 +47,112 @@ def home(request):
         top_artists_result['name'] = e['name']['value']
         top_artists_result['image'] = e['imgLarge']['value']
         top_artists_result['listeners'] = e['listeners']['value']
-        count +=1
+        count += 1
         top_artists_result['count'] = count
         top_artists_list.append(top_artists_result)
         top_artists_result = dict()
 
-    return render(request, 'index.html', {'artists':top_artists_list})
+    return render(request, 'index.html', {'artists': top_artists_list})
 
+
+def artists_social_networks(artist_name):
+    artists_qnumber = {}
+    with open("%s/musicbox/artists_qnumber.txt" % os.getcwd()) as f:
+        for line in f:
+            (key, val) = line.split(":")
+            artists_qnumber[key] = val.rstrip()
+
+    for key, value in artists_qnumber.items():
+        if (key == artist_name):
+            q_number = value
+
+    sparql = SPARQLWrapper("https://query.wikidata.org/sparql")
+
+    sparql.setQuery("""
+        SELECT ?twitter ?instagram ?facebook ?spotify ?lastfm ?soundcloud ?itunes ?official_Website
+        WHERE {
+            OPTIONAL {
+              wd:"""+ q_number + """ wdt:P2002 ?twitter .
+            }
+            OPTIONAL {
+              wd:"""+ q_number + """ wdt:P2003 ?instagram .
+            }
+            OPTIONAL {
+              wd:"""+ q_number + """ wdt:P2013 ?facebook .
+            }
+            OPTIONAL {
+              wd:"""+ q_number + """ wdt:P1902 ?spotify .
+            }
+            OPTIONAL {
+              wd:"""+ q_number + """ wdt:P3192 ?lastfm .
+            }
+            OPTIONAL {
+              wd:"""+ q_number + """ wdt:P3040 ?soundcloud .
+            }
+            SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
+          }
+    """)
+    sparql.setReturnFormat(JSON)
+    results = sparql.query().convert()
+
+    sn_handles = dict()
+    social_networks = []
+
+    for result in results["results"]["bindings"]:
+        if "twitter" in result:
+            sn_handles['Twitter'] = result['twitter']['value']
+        if "instagram" in result:
+            sn_handles['Instagram'] = result['instagram']['value']
+        if "facebook" in result:
+            sn_handles['Facebook'] = result['facebook']['value']
+        if "spotify" in result:
+            sn_handles['Spotify'] = result['spotify']['value']
+        if "lastfm" in result:
+            sn_handles['LastFM'] = result['lastfm']['value']
+        if "soundcloud" in result:
+            sn_handles['SoundCloud'] = result['soundcloud']['value']
+        social_networks.append(sn_handles)
+        sn_handles = dict()
+
+    return social_networks
+
+
+def band_members(band_name):
+    artists_qnumber = {}
+    with open("%s/musicbox/artists_qnumber.txt" % os.getcwd()) as f:
+        for line in f:
+            (key, val) = line.split(":")
+            artists_qnumber[key] = val.rstrip()
+
+    for key, value in artists_qnumber.items():
+        if (key == band_name):
+            q_number = value
+
+    sparql = SPARQLWrapper("https://query.wikidata.org/sparql")
+
+    sparql.setQuery("""SELECT ?membersLabel ?image
+            WHERE {
+              OPTIONAL {
+                  wd:"""+ q_number + """ wdt:P527 ?members .
+                  ?members wdt:P463 wd:"""+ q_number + """ .
+                  ?members wdt:P18 ?image .
+              }
+              SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en" }
+    }""")
+    sparql.setReturnFormat(JSON)
+    results = sparql.query().convert()
+    members = dict()
+    bands_members = []
+
+    for result in results["results"]["bindings"]:
+        if "membersLabel" in result:
+            members["Name"] = result['membersLabel']['value']
+        if "image" in result:
+            members["Image"] = result['image']['value']
+        bands_members.append(members)
+        members = dict()
+
+    return bands_members
 
 
 def search_query(request):
@@ -71,7 +170,7 @@ def search_query(request):
                                 OPTIONAL{?artist artist:imgLarge ?img_Large}
                                 FILTER REGEX(?name, "%s", "i")
                             }
-                   """ %term
+                   """ % term
 
     search_album = """  PREFIX artist:<http://www.artists.com/artist#>
                         PREFIX foaf: <http://xmlns.com/foaf/spec/>
@@ -101,7 +200,7 @@ def search_query(request):
 
     payload_query = {"query": search_album}
     ress = db_info[1].sparql_select(body=payload_query,
-                                   repo_name=db_info[0])
+                                    repo_name=db_info[0])
     ress = json.loads(ress)
     albums_result = dict()
     albums_list = []
@@ -141,7 +240,7 @@ def artists(request):
     else:
         letter = request.GET.get('name')
 
-    db_info=database()
+    db_info = database()
 
     artists = """       PREFIX artist:<http://www.artists.com/artist#>
                         PREFIX foaf: <http://xmlns.com/foaf/spec/>
@@ -169,6 +268,7 @@ def artists(request):
 
     return render(request, 'artists.html', {'artists': artists_list, 'flist': flist})
 
+
 def albums(request):
     assert isinstance(request, HttpRequest)
     list = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U',
@@ -185,7 +285,7 @@ def albums(request):
     else:
         letter = request.GET.get('name')
 
-    db_info=database()
+    db_info = database()
 
     albums = """    PREFIX artist:<http://www.artists.com/artist#>
                     PREFIX foaf: <http://xmlns.com/foaf/spec/>
@@ -197,7 +297,7 @@ def albums(request):
                         OPTIONAL{?album artist:imgLarge_album ?img_Large}
                         FILTER REGEX(?name, "^%s", "i")
                     }
-            """ %letter
+            """ % letter
 
     payload_query = {"query": albums}
     res = db_info[1].sparql_select(body=payload_query,
@@ -215,9 +315,10 @@ def albums(request):
 
     return render(request, 'albums.html', {'albums': albums_list, 'flist': flist})
 
+
 def albuminfo(request):
     assert isinstance(request, HttpRequest)
-    db_info=database()
+    db_info = database()
 
     if request.POST:
         if 'faveBtn' in request.POST:
@@ -297,7 +398,7 @@ def albuminfo(request):
 
     payload_query = {"query": tags}
     ress = db_info[1].sparql_select(body=payload_query,
-                                   repo_name=db_info[0])
+                                    repo_name=db_info[0])
     ress = json.loads(ress)
     tags_result = ""
 
@@ -322,7 +423,6 @@ def albuminfo(request):
 
     for e in ress['results']['bindings']:
         wiki_result = e['wiki']['value']
-
 
     photo = """     PREFIX artist:<http://www.artists.com/artist#>
                     PREFIX foaf: <http://xmlns.com/foaf/spec/>
@@ -407,6 +507,9 @@ def artist_page(request):
 
     artist_name = request.GET['name']
 
+    social_networks = artists_social_networks(artist_name)
+    members = band_members(artist_name)
+
     image = """     PREFIX artist:<http://www.artists.com/artist#>
                     PREFIX foaf: <http://xmlns.com/foaf/spec/>
                     SELECT ?image
@@ -419,7 +522,7 @@ def artist_page(request):
 
     payload_query = {"query": image}
     res = db_info[1].sparql_select(body=payload_query,
-                                    repo_name=db_info[0])
+                                   repo_name=db_info[0])
     res = json.loads(res)
     image_result = ""
 
@@ -439,7 +542,7 @@ def artist_page(request):
 
     payload_query = {"query": bio}
     res = db_info[1].sparql_select(body=payload_query,
-                                    repo_name=db_info[0])
+                                   repo_name=db_info[0])
     res = json.loads(res)
     bio_result = ""
 
@@ -463,7 +566,7 @@ def artist_page(request):
 
     payload_query = {"query": top_albums}
     res = db_info[1].sparql_select(body=payload_query,
-                                    repo_name=db_info[0])
+                                   repo_name=db_info[0])
     res = json.loads(res)
     top_albums_result = dict()
     top_albums_list = []
@@ -472,7 +575,7 @@ def artist_page(request):
         top_albums_result['name'] = e['name']['value']
         top_albums_result['image'] = e['img_Large']['value']
         top_albums_list.append(top_albums_result)
-        top_albums_result =dict()
+        top_albums_result = dict()
 
     all_albums = """    PREFIX artist:<http://www.artists.com/artist#>
                         PREFIX foaf: <http://xmlns.com/foaf/spec/>
@@ -488,7 +591,7 @@ def artist_page(request):
 
     payload_query = {"query": all_albums}
     res = db_info[1].sparql_select(body=payload_query,
-                                    repo_name=db_info[0])
+                                   repo_name=db_info[0])
     res = json.loads(res)
     all_albums_result = dict()
     all_albums_list = []
@@ -499,12 +602,16 @@ def artist_page(request):
         all_albums_list.append(all_albums_result)
         all_albums_result = dict()
 
-    return render(request, 'artist_page.html', {'image':image_result, 'bio': bio_result, 'album': top_albums_list, 'lista':all_albums_list, 'name':artist_name})
+    return render(request, 'artist_page.html',
+                  {'image': image_result, 'bio': bio_result, 'album': top_albums_list, 'lista': all_albums_list,
+                   'name': artist_name, 'social_networks': social_networks, 'members' : members})
+
+
 def charts(request):
     assert isinstance(request, HttpRequest)
     db_info = database()
 
-    top_Portugal =  """     PREFIX foaf: <http://xmlns.com/foaf/spec/>
+    top_Portugal = """     PREFIX foaf: <http://xmlns.com/foaf/spec/>
                             PREFIX topP: <http://www.topPortugal.com/tracks#>
                             PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
                             SELECT ?name_track ?name_artist ?img_Large
@@ -530,7 +637,7 @@ def charts(request):
     topP_name = ""
 
     for e in res['results']['bindings']:
-        count +=1
+        count += 1
         top_Portugal_result['name'] = e['name_track']['value']
         top_Portugal_result['artist'] = e['name_artist']['value']
         top_Portugal_result['image'] = e['img_Large']['value']
@@ -582,7 +689,7 @@ def profile(request):
         # query
         print("POST FORM")
 
-    db_info=database()
+    db_info = database()
 
     person = """    PREFIX foaf: <http://xmlns.com/foaf/spec/>
                     PREFIX user: <http://www.users.com/users#>
