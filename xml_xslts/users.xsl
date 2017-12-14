@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:user="http://www.users.com/users#" xmlns:foaf="http://xmlns.com/foaf/spec/">
 
@@ -37,6 +37,15 @@
               </xsl:for-each>
             </rdf:Description>
           </user:starred>
+        </xsl:for-each>
+
+        <xsl:for-each select="recommendations">
+          <xsl:variable name="album"><xsl:value-of select="album"/></xsl:variable>
+          <user:recommendations>
+            <rdf:Description rdf:about="http://www.users.com/users/{$name}/recommendations/album/{$album}">
+              <foaf:album><xsl:value-of select="album"/></foaf:album>
+            </rdf:Description>
+          </user:recommendations>
         </xsl:for-each>
 
       </rdf:Description>

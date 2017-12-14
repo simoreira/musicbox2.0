@@ -27,9 +27,16 @@
             <p>
                 <form role="fave" method="POST" action="/album/details/?name={{ album_name }}">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-default" value="{{ album_name }}" name="faveBtn">Fave</button>
+                    <button id="FavButton" onclick="showRec()" type="submit" class="btn btn-default" value="{{ album_name }}" name="faveBtn">Fave</button>
                     <button type="submit" class="btn btn-default" value="{{ album_name }}" name="delBtn">Delete</button>
                 </form>
+            </p>
+            <p id="recommendation" style="display: none">
+                <p style="font-weight: bold; font-size: large">Recommended Albums</p>
+             {% for rec in recommendations %}
+                 <a href="/album/details/?name={{ rec }}" style="font-weight: bold">{{ rec }}</a>
+                 <br>
+             {% endfor %}
             </p>
         </ul>
     </div>
@@ -57,11 +64,9 @@
 {%  endblock %}
 
 {% block jspage %}
-     <script>
-       function change() {
-            var elem = document.getElementById("myButton1");
-            if (elem.value=="Fave me!") elem.value = "Added";
-            else elem.value = "Fave me!";
+    <script>
+        function showRec() {
+        document.getElementById('recommendation').style.display = "block";
         }
     </script>
 {% endblock %}

@@ -1,4 +1,0 @@
-<?xml version="1.0"?>
-<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:user="http://www.users.com/users#" xmlns:foaf="http://xmlns.com/foaf/spec/"><rdf:Description rdf:about="http://www.users.com/users">
-    <user:user><rdf:Description rdf:about="http://www.users.com/users/In&#xEA;s Moreira"><foaf:name>Inês Moreira</foaf:name><user:email>simoreira@ua.pt</user:email><user:password>admin123</user:password><user:starred><rdf:Description rdf:about="http://www.users.com/users/In&#xEA;s Moreira/starred"><user:favArt><rdf:Description rdf:about="http://www.users.com/users/In&#xEA;s Moreira/starred/Radiohead"><foaf:favArt>Radiohead</foaf:favArt></rdf:Description></user:favArt><user:favAlb><rdf:Description rdf:about="http://www.users.com/users/In&#xEA;s Moreira/starred/Paranoid Android"><foaf:favAlb>Paranoid Android</foaf:favAlb></rdf:Description></user:favAlb></rdf:Description></user:starred></rdf:Description></user:user>
-</rdf:Description></rdf:RDF>

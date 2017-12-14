@@ -4,6 +4,7 @@ import xml.dom.minidom
 import os
 from django.http import HttpRequest
 import json
+import random
 from s4api.graphdb_api import GraphDBApi
 from s4api.swagger import ApiClient
 from SPARQLWrapper import SPARQLWrapper, JSON
@@ -320,42 +321,6 @@ def albuminfo(request):
     assert isinstance(request, HttpRequest)
     db_info = database()
 
-    if request.POST:
-        if 'faveBtn' in request.POST:
-            name_album = request.POST['faveBtn']
-            addAlbum =  """     PREFIX foaf: <http://xmlns.com/foaf/spec/>
-                                PREFIX user: <http://www.users.com/users#>
-                                PREFIX starred: <http://www.users.com/users#/starred#>
-                                INSERT {
-                                    ?favorite foaf:favAlb "%s" .
-                                }
-                                WHERE{
-                                    ?s         user:user     ?user.
-                                    ?user      foaf:name     "Inês Moreira".
-                                    ?user      user:starred  ?starred.
-                                    ?starred   user:favAlb   ?favorite.
-                                }
-                        """ % name_album
-            payload_query = {"update": addAlbum}
-            res = db_info[1].sparql_update(body=payload_query,
-                                           repo_name=db_info[0])
-
-        elif 'delBtn' in request.POST:
-            album_delete = request.POST['delBtn']
-            delete_album =  """ PREFIX foaf: <http://xmlns.com/foaf/spec/>
-                                DELETE
-                                WHERE{
-                                    ?favorite foaf:favAlb "%s".
-                                }
-                            """ % album_delete
-
-            payload_query = {"update": delete_album}
-            res = db_info[1].sparql_update(body=payload_query,
-                                           repo_name=db_info[0])
-
-        else:
-            pass
-
     album_name = request.GET['name']
 
     tracks = """    PREFIX artist:<http://www.artists.com/artist#>
@@ -466,7 +431,122 @@ def albuminfo(request):
     for e in ress['results']['bindings']:
         artist_result = e['name']['value']
 
-    return render(request, 'albuminfo.html', {'tracks': tracks_list, 'tags':tags_result, 'wiki':wiki_result, 'photo':photo_result, 'artist':artist_result, 'album_name':album_name, 'track_name':tracks_name, 'tags':tags_list })
+    recommendation = []
+    if request.POST:
+        if 'faveBtn' in request.POST:
+            name_album = request.POST['faveBtn']
+            addAlbum = """     PREFIX foaf: <http://xmlns.com/foaf/spec/>
+                                   PREFIX user: <http://www.users.com/users#>
+                                   PREFIX starred: <http://www.users.com/users#/starred#>
+                                   INSERT {
+                                       ?favorite foaf:favAlb "%s" .
+                                   }
+                                   WHERE{
+                                       ?s         user:user     ?user.
+                                       ?user      foaf:name     "Inês Moreira".
+                                       ?user      user:starred  ?starred.
+                                       ?starred   user:favAlb   ?favorite.
+                                   }
+                           """ % name_album
+            payload_query = {"update": addAlbum}
+            res = db_info[1].sparql_update(body=payload_query,
+                                           repo_name=db_info[0])
+
+            # inferencia
+
+            # get tags of the favorited album
+
+            all_tags = [tmp['name'] for tmp in tags_list]
+
+            # remove useless tags
+
+            if "albums I own" in all_tags:
+                all_tags.remove("albums I own")
+
+            tags = [s for s in all_tags if not s.isdigit()]
+
+            rec = []
+            # find albums with the same tags
+
+            for tag in tags:
+                recommended = """   PREFIX artist:<http://www.artists.com/artist#>
+                                                PREFIX foaf: <http://xmlns.com/foaf/spec/>
+                                                SELECT  ?album_name
+                                                WHERE{
+                                                    ?album  artist:tag       ?tag .
+                                                    ?tag    foaf:tag_name    ?name.
+                                                    ?tag    foaf:tag_name    "%s".
+                                                    ?album foaf:name_album ?album_name.
+                                                }
+                                               """ % tag
+            q = {"query": recommended}
+            r = db_info[1].sparql_select(body=q, repo_name=db_info[0])
+
+            r = json.loads(r)
+            for e in r['results']['bindings']:
+                rec.append(e['album_name']['value'])
+            print(rec)
+
+            #insert albums with same tags
+            for reco in rec:
+                print(reco)
+                ins = """PREFIX foaf: <http://xmlns.com/foaf/spec/>
+                                   PREFIX user: <http://www.users.com/users#>
+                                   PREFIX recommendations: <http://www.users.com/users#/recommendations#/album#>
+                                   INSERT {
+                                       ?rec foaf:album "%s" .
+                                   }
+                                   WHERE{
+                                       ?s         user:user     ?user.
+                                       ?user      foaf:name     "Inês Moreira".
+                                       ?user	  user:recommendations ?rec .
+                                   } """ % reco
+
+            qu = {"update": ins}
+            re = db_info[1].sparql_update(body=qu, repo_name=db_info[0])
+
+            recom = []
+
+            get_recommended = """PREFIX foaf: <http://xmlns.com/foaf/spec/>
+                                   PREFIX user: <http://www.users.com/users#>
+                                   PREFIX recommendations: <http://www.users.com/users#/recommendations#/album#>
+								   SELECT ?name
+                                   WHERE{
+                                       ?s         user:user     ?user.
+                                       ?user      foaf:name     "Inês Moreira".
+                                       ?user	  user:recommendations ?rec .
+    								   ?rec		  foaf:album ?name
+                                   } """
+
+            que = {"query": get_recommended}
+            resu = db_info[1].sparql_select(body=que, repo_name=db_info[0])
+
+            resu = json.loads(resu)
+            for e in resu['results']['bindings']:
+                print(e)
+                recom.append(e['name']['value'])
+
+            recommendation = random.sample(recom, 3)
+
+
+        elif 'delBtn' in request.POST:
+            album_delete = request.POST['delBtn']
+            delete_album = """ PREFIX foaf: <http://xmlns.com/foaf/spec/>
+                                   DELETE
+                                   WHERE{
+                                       ?favorite foaf:favAlb "%s".
+                                   }
+                               """ % album_delete
+
+            payload_query = {"update": delete_album}
+            res = db_info[1].sparql_update(body=payload_query,
+                                           repo_name=db_info[0])
+
+        else:
+            pass
+
+
+    return render(request, 'albuminfo.html', {'tracks': tracks_list, 'tags':tags_result, 'wiki':wiki_result, 'photo':photo_result, 'artist':artist_result, 'album_name':album_name, 'track_name':tracks_name, 'tags':tags_list,  'recommendations': recommendation})
 
 def artist_page(request):
     assert isinstance(request, HttpRequest)

@@ -9,5 +9,8 @@
             <fav type="album" data="Amnesiac">Amnesiac</fav>
             <fav type="album" data="Abbey Road">Abbey Road</fav>
         </starred>
+        <recommendations>
+            <album>AM</album>
+        </recommendations>
     </user>
 </users>
